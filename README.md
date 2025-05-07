@@ -15,7 +15,7 @@ let api = DeepLApi::with("请替换为你的deepl API key").new();
 ```
 - 在终端`cargo build`
 
-- 工具仅一个exe，启动后会驻留后台，选中文本后按 `alt+q` 唤起翻译界面，`esc`关闭界面，`ctrl+shift+d`完全退出
+- 工具位置在`/target/debug/translator.exe`。工具仅一个exe，启动后会驻留后台，选中文本后按 `alt+q` 唤起翻译界面，`esc`关闭界面，`ctrl+shift+d`完全退出
 
 - 在界面开启的情况下，可以通过选中文本触发翻译行为，无需快捷键，俗称“划词翻译”
 
