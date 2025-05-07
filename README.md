@@ -9,13 +9,15 @@ Translator 是使用Rust编写的翻译小工具
 - 选中即翻译(划词翻译)，专注论文阅读
 
 ## 使用说明
-打开 `/src/windows.rs`，修改为自己的deepl API key
+- 打开 `/src/windows.rs`，修改为自己的deepl API key
 ```shell
 let api = DeepLApi::with("请替换为你的deepl API key").new();
 ```
-工具仅一个exe，启动后会驻留后台，选中文本后按 `alt+q` 唤起翻译界面，`esc`关闭界面，`ctrl+shift+d`完全退出
+- 在终端`cargo build`
 
-在界面开启的情况下，可以通过选中文本触发翻译行为，无需快捷键，俗称“划词翻译”
+- 工具仅一个exe，启动后会驻留后台，选中文本后按 `alt+q` 唤起翻译界面，`esc`关闭界面，`ctrl+shift+d`完全退出
+
+- 在界面开启的情况下，可以通过选中文本触发翻译行为，无需快捷键，俗称“划词翻译”
 
 ![使用截图](./res/pic.png)
 
