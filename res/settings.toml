@@ -1,5 +1,4 @@
-api = "https://deepl.deno.dev/translate"
-
+api = "123"
 [window]
 # 字体放大，设置为负数就缩小
 font_size_plus = 3

@@ -5,7 +5,6 @@ use std::{
     thread::{self, sleep},
     time::Duration,
 };
-
 use crate::{
     cfg::{get_api, get_window_size, init_config},
     hotkey::ctrl_c,

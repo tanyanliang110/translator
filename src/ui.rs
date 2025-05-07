@@ -1,8 +1,7 @@
 use crate::{cfg::get_theme, font};
 use egui::{self, epaint::Color32};
 use std::{
-    io::Cursor,
-    sync::{mpsc, Arc, Mutex},
+     io::Cursor, sync::{mpsc, Arc, Mutex}
 };
 
 #[cfg(target_os = "windows")]
@@ -33,7 +32,62 @@ pub struct MyApp {
     #[cfg(target_os = "windows")]
     hotkey_rx: Receiver<()>,
 }
-
+pub fn lang_list_with_auto() -> Vec<deepl::Lang> {
+    vec![
+        deepl::Lang::ZH,
+        deepl::Lang::EN,
+        deepl::Lang::ES,
+        deepl::Lang::FR,
+        deepl::Lang::IT,
+        deepl::Lang::JA,
+        deepl::Lang::NL,
+        deepl::Lang::PL,
+        deepl::Lang::PT,
+        deepl::Lang::RU,
+        deepl::Lang::ZH,
+        deepl::Lang::BG,
+        deepl::Lang::CS,
+        deepl::Lang::DA,
+        deepl::Lang::EL,
+        deepl::Lang::ET,
+        deepl::Lang::FI,
+        deepl::Lang::HU,
+        deepl::Lang::LT,
+        deepl::Lang::LV,
+        deepl::Lang::RO,
+        deepl::Lang::SK,
+        deepl::Lang::SL,
+        deepl::Lang::SV,
+    ]
+}
+pub fn lang_list() -> Vec<deepl::Lang> {
+    vec![
+        deepl::Lang::ZH,
+        deepl::Lang::EN,
+        deepl::Lang::ES,
+        deepl::Lang::FR,
+        deepl::Lang::IT,
+        deepl::Lang::JA,
+        deepl::Lang::NL,
+        deepl::Lang::PL,
+        deepl::Lang::PT,
+        deepl::Lang::RU,
+        deepl::Lang::ZH,
+        deepl::Lang::BG,
+        deepl::Lang::CS,
+        deepl::Lang::DA,
+        deepl::Lang::EL,
+        deepl::Lang::ET,
+        deepl::Lang::FI,
+        deepl::Lang::HU,
+        deepl::Lang::LT,
+        deepl::Lang::LV,
+        deepl::Lang::RO,
+        deepl::Lang::SK,
+        deepl::Lang::SL,
+        deepl::Lang::SV,
+    ]
+}
 impl MyApp {
     pub fn new(
         state: Arc<Mutex<State>>,
@@ -58,8 +112,8 @@ impl MyApp {
         Self {
             state,
 
-            lang_list_with_auto: deepl::Lang::lang_list_with_auto(),
-            lang_list: deepl::Lang::lang_list(),
+            lang_list_with_auto: lang_list_with_auto(),
+            lang_list: lang_list(),
             task_chan,
             show_box: false,
 
@@ -88,8 +142,8 @@ impl eframe::App for MyApp {
         } = self;
         let mut state = state.lock().unwrap();
 
-        let old_source_lang = state.source_lang;
-        let old_target_lang = state.target_lang;
+        let old_source_lang = state.source_lang.clone();
+        let old_target_lang = state.target_lang.clone();
 
         if ctx.input().key_pressed(egui::Key::Escape) {
             #[cfg(target_os = "windows")]
@@ -111,15 +165,15 @@ impl eframe::App for MyApp {
                         .width(combobox_width)
                         .show_ui(ui, |ui| {
                             for i in lang_list_with_auto {
-                                let i = i.to_owned();
-                                ui.selectable_value(&mut state.source_lang, i, i.description());
+                                let i_clone = i.clone();
+                                ui.selectable_value(&mut state.source_lang, i_clone, i.description());
                             }
                         });
 
                     if ui.add(egui::Button::new(" ⇌ ").frame(false)).clicked() {
-                        let tmp_target_lang = state.target_lang;
-                        let tmp_source_lang = state.source_lang;
-                        state.target_lang = if tmp_source_lang == deepl::Lang::Auto {
+                        let tmp_target_lang = state.target_lang.clone();
+                        let tmp_source_lang = state.source_lang.clone();
+                        state.target_lang = if tmp_source_lang == deepl::Lang::ZH {
                             deepl::Lang::EN
                         } else {
                             tmp_source_lang
@@ -132,8 +186,8 @@ impl eframe::App for MyApp {
                         .width(combobox_width)
                         .show_ui(ui, |ui| {
                             for i in lang_list {
-                                let i = i.to_owned();
-                                ui.selectable_value(&mut state.target_lang, i, i.description());
+                                let i_clone = i.clone();
+                                ui.selectable_value(&mut state.source_lang, i_clone, i.description());
                             }
                         });
                     if ui.add(egui::Button::new("翻译")).clicked() {
@@ -145,7 +199,7 @@ impl eframe::App for MyApp {
                             ui.visuals_mut().hyperlink_color = state.link_color;
                             ui.hyperlink_to(
                                 egui::special_emojis::GITHUB.to_string(),
-                                "https://github.com/zu1k/translator",
+                                "https://github.com/tanyanliang110/translator",
                             );
 
                             if ui.add(egui::Button::new("□").frame(false)).clicked() {

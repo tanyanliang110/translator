@@ -5,7 +5,7 @@ use std::{
     thread::{self, sleep},
     time::Duration,
 };
-
+use deepl::DeepLApi;
 use crate::{
     cfg::{get_api, get_window_size, init_config},
     hotkey::{ctrl_c, HotkeySetting},
@@ -19,7 +19,7 @@ pub fn setup_ui_task(cc: &CreationContext) -> Box<dyn App> {
 
     let state = Arc::new(Mutex::new(State {
         text: "请选中需要翻译的文字触发划词翻译".to_string(),
-        source_lang: deepl::Lang::Auto,
+        source_lang: deepl::Lang::EN,
         target_lang: deepl::Lang::ZH,
         link_color: LINK_COLOR_COMMON,
     }));
@@ -73,12 +73,23 @@ pub fn setup_ui_task(cc: &CreationContext) -> Box<dyn App> {
 
                                 // 开始翻译
                                 let result = {
-                                    let (source_lang, target_lang) = {
+                                    let target_lang = {
                                         let state = state.lock().unwrap();
-                                        (state.source_lang, state.target_lang)
+                                        state.target_lang.clone()
                                     };
-                                    deepl::translate(&get_api(), text_new, target_lang, source_lang)
-                                        .unwrap_or("翻译接口失效，请更换".to_string())
+                                    {
+                                        let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
+                                        rt.block_on(async {
+                                            let api = DeepLApi::with("请替换为你的deepl API key").new();
+                                            match api.translate_text(&text_new, target_lang).await {
+                                                Ok(resp) => resp.translations[0].text.clone(),
+                                                Err(err) => {
+                                                    log::error!("DeepL API error: {:?}", err);
+                                                    "翻译接口失效，请更换".to_string()
+                                                }
+                                            }
+                                        })
+                                    }
                                 };
 
                                 // 翻译结束 UI
@@ -111,12 +122,18 @@ pub fn setup_ui_task(cc: &CreationContext) -> Box<dyn App> {
 
                     // 开始翻译
                     let result = {
-                        let (text, source_lang, target_lang) = {
+                        let (text,target_lang) = {
                             let state = state.lock().unwrap();
-                            (state.text.clone(), state.source_lang, state.target_lang)
+                            (state.text.clone(),  deepl::Lang::ZH)
                         };
-                        deepl::translate(&get_api(), text, target_lang, source_lang)
-                            .unwrap_or("翻译接口失效，请更换".to_string())
+                        {
+                            let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
+                            rt.block_on(async {
+                                let api = DeepLApi::with("请替换为你的deepl API key").new();
+                                let translated = api.translate_text(&text, target_lang).await;
+                                translated.map(|resp| resp.translations[0].text.clone()).unwrap_or("翻译接口失效，请更换".to_string())
+                            })
+                        }
                     };
 
                     // 翻译结束 UI
