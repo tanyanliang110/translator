@@ -119,6 +119,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.98"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
+
+[[package]]
 name = "arboard"
 version = "3.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -723,6 +729,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "deepseek-api-client"
+version = "0.1.1"
+source = "git+https://github.com/acscoder/deepseek-api-client#30e7850643c0e51e7dd399eff71d20f672ad130e"
+dependencies = [
+ "anyhow",
+ "optional-default",
+ "reqwest",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "derive-new"
 version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1094,6 +1112,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dff15bf788c671c1934e366d07e30c1814a8ef514e1af724a602e8a2fbe1b10"
 dependencies = [
  "futures-core",
+ "futures-sink",
 ]
 
 [[package]]
@@ -2187,6 +2206,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "optional-default"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dde4b96f220823baa2b3e26ebece7b141756bc982374e8358ecc7a95ffc5b952"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.101",
+]
+
+[[package]]
 name = "ordered-multimap"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2425,6 +2455,7 @@ dependencies = [
  "base64 0.22.1",
  "bytes",
  "encoding_rs",
+ "futures-channel",
  "futures-core",
  "futures-util",
  "h2",
@@ -3166,6 +3197,7 @@ dependencies = [
  "cli-clipboard",
  "config",
  "deepl",
+ "deepseek-api-client",
  "eframe",
  "egui",
  "ico",

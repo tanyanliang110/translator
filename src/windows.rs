@@ -1,18 +1,36 @@
 use eframe::{App, CreationContext};
+
 use log::warn;
 use std::{
-    sync::{mpsc, Arc, Mutex},
-    thread::{self, sleep},
-    time::Duration,
+   sync::{mpsc, Arc, Mutex}, thread::{self, sleep}, time::Duration
 };
-use deepl::DeepLApi;
+use deepseek_api_client::*;
+//use deepl::DeepLApi;
 use crate::{
-    cfg::{get_api, get_window_size, init_config},
+    cfg::{ get_window_size, init_config},
     hotkey::{ctrl_c, HotkeySetting},
     mouse::MouseState,
     ui::{self, get_icon_data, State, LINK_COLOR_COMMON, LINK_COLOR_DOING},
 };
 
+fn call_api(text: &str) -> String {
+    //call API in sync function
+    let messages = vec![
+            Message {
+                role: "system".to_owned(),
+                content: "你是一个专业翻译的专家，严格将内容翻译成中文，保持原意且不添加解释，并且回复的内容不需要说明，只需要翻译的内容".to_owned(),
+            },
+            Message {
+                role: "user".to_owned(),
+                content: text.to_owned(),
+            },
+        ];
+    let mut sync_llm = chat_completion_sync("your deepseek api key");
+    let res = sync_llm(messages);
+    let res_text = get_response_text(&res.unwrap(), 0).unwrap_or_else(|| "Default response".to_string());
+    
+    return res_text;
+}
 pub fn setup_ui_task(cc: &CreationContext) -> Box<dyn App> {
     let ctx = cc.egui_ctx.clone();
     let (task_tx, task_rx) = mpsc::sync_channel(1);
@@ -70,27 +88,27 @@ pub fn setup_ui_task(cc: &CreationContext) -> Box<dyn App> {
                                     state.text = text_new.clone();
                                     state.link_color = LINK_COLOR_DOING;
                                 }
-
                                 // 开始翻译
-                                let result = {
-                                    let target_lang = {
-                                        let state = state.lock().unwrap();
-                                        state.target_lang.clone()
-                                    };
-                                    {
-                                        let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
-                                        rt.block_on(async {
-                                            let api = DeepLApi::with("请替换为你的deepl API key").new();
-                                            match api.translate_text(&text_new, target_lang).await {
-                                                Ok(resp) => resp.translations[0].text.clone(),
-                                                Err(err) => {
-                                                    log::error!("DeepL API error: {:?}", err);
-                                                    "翻译接口失效，请更换".to_string()
-                                                }
-                                            }
-                                        })
-                                    }
-                                };
+                                 let result = call_api(&text_new);
+                                // let result = {
+                                //     let target_lang = {
+                                //         let state = state.lock().unwrap();
+                                //         state.target_lang.clone()
+                                //     };
+                                //     {
+                                //         let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
+                                //         rt.block_on(async {
+                                //             let api = DeepLApi::with("请替换为你的deepl API key").new();
+                                //             match api.translate_text(&text_new, target_lang).await {
+                                //                 Ok(resp) => resp.translations[0].text.clone(),
+                                //                 Err(err) => {
+                                //                     log::error!("DeepL API error: {:?}", err);
+                                //                     "翻译接口失效，请更换".to_string()
+                                //                 }
+                                //             }
+                                //         })
+                                //     }
+                                // };
 
                                 // 翻译结束 UI
                                 {
@@ -121,20 +139,25 @@ pub fn setup_ui_task(cc: &CreationContext) -> Box<dyn App> {
                     }
 
                     // 开始翻译
-                    let result = {
-                        let (text,target_lang) = {
-                            let state = state.lock().unwrap();
-                            (state.text.clone(),  deepl::Lang::ZH)
-                        };
-                        {
-                            let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
-                            rt.block_on(async {
-                                let api = DeepLApi::with("请替换为你的deepl API key").new();
-                                let translated = api.translate_text(&text, target_lang).await;
-                                translated.map(|resp| resp.translations[0].text.clone()).unwrap_or("翻译接口失效，请更换".to_string())
-                            })
-                        }
-                    };
+                    let text = {
+                                 let state = state.lock().unwrap();
+                                 state.text.clone()
+                             };
+                    let result = call_api(&text);
+                    // let result = {
+                    //     let (text,target_lang) = {
+                    //         let state = state.lock().unwrap();
+                    //         (state.text.clone(),  deepl::Lang::ZH)
+                    //     };
+                    //     {
+                    //         let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
+                    //         rt.block_on(async {
+                    //             let api = DeepLApi::with("请替换为你的deepl API key").new();
+                    //             let translated = api.translate_text(&text, target_lang).await;
+                    //             translated.map(|resp| resp.translations[0].text.clone()).unwrap_or("翻译接口失效，请更换".to_string())
+                    //         })
+                    //     }
+                    // };
 
                     // 翻译结束 UI
                     {

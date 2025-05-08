@@ -24,6 +24,7 @@ ico = "0.3"
 rdev = "0.5"
 tauri-hotkey = { git = "https://gitee.com/tanyanliang/tauri-hotkey-rs"}
 tokio = { version = "1.41.1", features = ["rt", "macros", "fs", "rt-multi-thread", "io-util"] }
+deepseek-api-client = {  git = "https://github.com/acscoder/deepseek-api-client" } 
 
 [build-dependencies]
 winres = "0.1"
