@@ -9,9 +9,9 @@ Translator 是使用Rust编写的翻译小工具
 - 选中即翻译(划词翻译)，专注论文阅读
 
 ## 使用说明
-- 打开 `/src/windows.rs`，修改为自己的deepl API key
+- 打开 `/src/windows.rs`，修改为自己的deepseek API key
 ```shell
-let api = DeepLApi::with("请替换为你的deepl API key").new();
+    let mut sync_llm = chat_completion_sync("your deepseek api key");
 ```
 - 在终端`cargo build`
 
